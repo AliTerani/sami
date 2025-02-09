@@ -32,16 +32,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Database connection
-//const db = mysql.createConnection({
-  //host: "193.203.168.121",
-  //user: "u402158123_AdminSami", // Replace with your database username
-  //password: "Sami@2025", // Replace with your database password
-  //database: "u402158123_manag_db", // Replace with your database name
-//});
-
 // Create a connection pool
-const db = mysql.createPool({
+const pool = mysql.createPool({
   connectionLimit: 10, // Adjust the limit based on your needs
   host: "193.203.168.121",
   user: "u402158123_AdminSami", // Replace with your database username
@@ -49,14 +41,6 @@ const db = mysql.createPool({
   database: "u402158123_manag_db", // Replace with your database name
 });
 
-// Connect to the database
-db.connect((err) => {
-  if (err) {
-    console.error("Error connecting to the database:", err);
-    return;
-  }
-  console.log("Connected to the database");
-});
 
 // Dummy credentials
 const USERS = { admin: "admin123", user: "user123" };
@@ -108,7 +92,7 @@ app.post('/add-event', upload.single("event_image"), async (req, res) => {
     // Fetch actors from the database
     const actors = await new Promise((resolve, reject) => {
       const sql = "SELECT * FROM actors";
-      db.query(sql, (err, results) => {
+      pool.query(sql, (err, results) => {
         if (err) {
           reject(err);
         } else {
@@ -174,7 +158,7 @@ app.post('/add-event', upload.single("event_image"), async (req, res) => {
       queueValue, // Use the converted value
     ];
 
-    db.query(sql, values, (err, result) => {
+    pool.query(sql, values, (err, result) => {
       if (err) {
         console.error("Error inserting data into the database:", err);
         res.status(500).send({ success: false, message: "An error occurred while adding the event." });
@@ -210,7 +194,7 @@ app.post("/add-actor", upload.single("actor_image"), (req, res) => {
         mobile_price,
       ];
   
-      db.query(sql, values, (err, result) => {
+      pool.query(sql, values, (err, result) => {
         if (err) {
           console.error("Error inserting data into the database:", err);
           res.status(500).send({ success: false, message: "An error occurred while adding the actor." });
@@ -251,7 +235,7 @@ app.get("/add-actors-form", (req, res) => {
 app.get("/get-active-events", (req, res) => {
     const sql = "SELECT * FROM events WHERE status = 'Active'";
   
-    db.query(sql, (err, results) => {
+    pool.query(sql, (err, results) => {
       if (err) {
         console.error("Error fetching active events:", err);
         res.status(500).send({ success: false, message: "Failed to fetch active events" });
@@ -266,7 +250,7 @@ app.get("/get-active-events", (req, res) => {
 app.get("/get-actors", (req, res) => {
     const sql = "SELECT * FROM actors";
   
-    db.query(sql, (err, results) => {
+    pool.query(sql, (err, results) => {
       if (err) {
         console.error("Error fetching actors:", err);
         res.status(500).send({ success: false, message: "Failed to fetch actors" });
@@ -282,7 +266,7 @@ app.get('/get-event', (req, res) => {
     const eventId = req.query.id;
     const sql = "SELECT * FROM events WHERE id = ?";
   
-    db.query(sql, [eventId], (err, results) => {
+    pool.query(sql, [eventId], (err, results) => {
       if (err) {
         console.error("Error fetching event:", err);
         res.status(500).send({ success: false, message: "Failed to fetch event" });
@@ -306,7 +290,7 @@ app.post('/add-transaction', async (req, res) => {
 
   // Fetch the event to check receipt_print and queue fields
   const eventSql = "SELECT receipt_print, queue FROM events WHERE id = ?";
-  db.query(eventSql, [transactionData.event_id], async (err, eventResults) => {
+  pool.query(eventSql, [transactionData.event_id], async (err, eventResults) => {
     if (err) {
       console.error("Error fetching event:", err);
       return res.status(500).send({ success: false, message: "Failed to fetch event details" });
@@ -345,7 +329,7 @@ app.post('/add-transaction', async (req, res) => {
       WHERE event_selected_date = ? AND event_selected_showtime = ?
     `;
 
-    db.query(queueNumberSql, [transactionData.event_selected_date, transactionData.event_selected_showtime], (err, queueNumberResult) => {
+    pool.query(queueNumberSql, [transactionData.event_selected_date, transactionData.event_selected_showtime], (err, queueNumberResult) => {
       if (err) {
         console.error("Error fetching queue number:", err);
         return res.status(500).send({ success: false, message: "Failed to fetch queue number" });
@@ -380,7 +364,7 @@ app.post('/add-transaction', async (req, res) => {
         transactionData.knet_amount || 0, // Add the Knet amount
       ]);
 
-      db.query(sql, [values], async (err, result) => {
+      pool.query(sql, [values], async (err, result) => {
         if (err) {
           console.error("Error inserting transaction:", err);
           return res.status(500).send({ success: false, message: "Failed to add transaction" });
@@ -389,7 +373,7 @@ app.post('/add-transaction', async (req, res) => {
         // If payment method is Cash, update the event's opening balance
         if (transactionData.payment_method === 'Cash') {
           const updateSql = "UPDATE events SET opening_balance = opening_balance + ? WHERE id = ?";
-          db.query(updateSql, [transactionData.cash_received, transactionData.event_id], (err, result) => {
+          pool.query(updateSql, [transactionData.cash_received, transactionData.event_id], (err, result) => {
             if (err) {
               console.error("Error updating event opening balance:", err);
               return res.status(500).send({ success: false, message: "Failed to update event opening balance" });
@@ -427,7 +411,7 @@ app.get('/get-transaction-details', (req, res) => {
     WHERE transaction_id = ?
   `;
 
-  db.query(sql, [transactionId], (err, results) => {
+  pool.query(sql, [transactionId], (err, results) => {
     if (err) {
       console.error('Error fetching transaction details:', err);
       return res.status(500).send({ success: false, message: 'Failed to fetch transaction details' });
@@ -572,7 +556,7 @@ app.post('/archive-event', (req, res) => {
     const { eventId } = req.body;
   
     const sql = "UPDATE events SET status = 'Archived' WHERE id = ?";
-    db.query(sql, [eventId], (err, result) => {
+    pool.query(sql, [eventId], (err, result) => {
       if (err) {
         console.error("Error archiving event:", err);
         res.status(500).send({ success: false, message: "Failed to archive event" });
@@ -756,7 +740,7 @@ app.get('/edit-event-form', (req, res) => {
         JOIN events e ON t.event_id = e.id
         WHERE t.transaction_id = ?
       `;
-      db.query(transactionSql, [transaction_id], (err, transactionResults) => {
+      pool.query(transactionSql, [transaction_id], (err, transactionResults) => {
         if (err) {
           console.error('Error fetching transaction details:', err);
           return res.status(500).send({ success: false, message: 'Failed to fetch transaction details' });
@@ -779,7 +763,7 @@ app.get('/edit-event-form', (req, res) => {
           SET cash_refund = ?, cash_received = 0
           WHERE transaction_id = ?
         `;
-        db.query(updateSql, [totalRefund, transaction_id], (err, updateResult) => {
+        pool.query(updateSql, [totalRefund, transaction_id], (err, updateResult) => {
           if (err) {
             console.error('Error updating transaction:', err);
             return res.status(500).send({ success: false, message: 'Failed to update transaction' });
@@ -797,7 +781,7 @@ app.get('/edit-event-form', (req, res) => {
   app.get('/get-archived-events', (req, res) => {
     const sql = "SELECT * FROM events WHERE status = 'Archived'";
   
-    db.query(sql, (err, results) => {
+    pool.query(sql, (err, results) => {
       if (err) {
         console.error("Error fetching archived events:", err);
         res.status(500).send({ success: false, message: "Failed to fetch archived events" });
@@ -827,7 +811,7 @@ app.get('/edit-event-form', (req, res) => {
   
     const values = [event_name, event_location, event_country, start_date, end_date, status, eventId];
   
-    db.query(sql, values, (err, result) => {
+    pool.query(sql, values, (err, result) => {
       if (err) {
         console.error("Error updating event:", err);
         res.status(500).send({ success: false, message: "Failed to update event" });
@@ -855,7 +839,7 @@ app.get('/edit-event-form', (req, res) => {
         GROUP BY e.event_name;
     `;
 
-    db.query(sql, [event_id, date, showtime], (err, results) => {
+    pool.query(sql, [event_id, date, showtime], (err, results) => {
         if (err) {
             console.error("Error fetching report:", err);
             return res.status(500).send({ success: false, message: "Error fetching report" });
@@ -887,7 +871,7 @@ app.get('/generate-end-of-day-report', async (req, res) => {
     GROUP BY e.event_name, e.camira_price, e.mobile_price;
   `;
 
-  db.query(sql, [event_id, date, showtime], async (err, results) => {
+  pool.query(sql, [event_id, date, showtime], async (err, results) => {
     if (err) {
       console.error('Error generating report:', err);
       return res.status(500).send({ success: false, message: 'Error generating report' });
@@ -1014,7 +998,7 @@ app.get('/generate-actors-request', async (req, res) => {
       ORDER BY a.actor_name ASC
     `;
   
-    db.query(sql, [event_id, date, showtime], async (err, results) => {
+    pool.query(sql, [event_id, date, showtime], async (err, results) => {
       if (err) {
         console.error('Error generating actors request:', err);
         return res.status(500).send({ success: false, message: 'Error generating actors request' });
@@ -1152,7 +1136,7 @@ app.get('/generate-event-date-report', async (req, res) => {
     ORDER BY t.actor_name ASC
   `;
 
-  db.query(sql, [event_id, date], async (err, results) => {
+  pool.query(sql, [event_id, date], async (err, results) => {
     if (err) {
       console.error('Error generating Event Date Report:', err);
       return res.status(500).send({ success: false, message: 'Error generating Event Date Report' });
@@ -1280,7 +1264,7 @@ app.get('/generate-event-full-report', async (req, res) => {
       ORDER BY t.actor_name ASC
     `;
   
-    db.query(sql, [event_id], async (err, results) => {
+    pool.query(sql, [event_id], async (err, results) => {
       if (err) {
         console.error('Error generating Event Full Report:', err);
         return res.status(500).send({ success: false, message: 'Error generating Event Full Report' });
@@ -1391,5 +1375,4 @@ app.get('/generate-event-full-report', async (req, res) => {
       res.send({ success: true, pdfPath: `/receipts/${path.basename(pdfPath)}` });
     });
   });
-  
   
