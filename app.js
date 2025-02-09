@@ -33,12 +33,12 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Database connection
-//const db = mysql.createConnection({
-//  host: "193.203.168.121",
-//  user: "u402158123_AdminSami", // Replace with your database username
-//  password: "Sami@2025", // Replace with your database password
-//  database: "u402158123_manag_db", // Replace with your database name
-//});
+const db = mysql.createConnection({
+  host: "193.203.168.121",
+  user: "u402158123_AdminSami", // Replace with your database username
+  password: "Sami@2025", // Replace with your database password
+  database: "u402158123_manag_db", // Replace with your database name
+});
 
 // Connect to the database
 db.connect((err) => {
