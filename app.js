@@ -41,7 +41,7 @@ const upload = multer({ storage: storage });
 //});
 
 // Create a connection pool
-const pool = mysql.createPool({
+const db = mysql.createPool({
   connectionLimit: 10, // Adjust the limit based on your needs
   host: "193.203.168.121",
   user: "u402158123_AdminSami", // Replace with your database username
