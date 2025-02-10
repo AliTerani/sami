@@ -440,7 +440,7 @@ async function sendQRCodeViaWhatsApp(transactionData, transactionId, res) {
     await qrcode.toFile(qrCodeImagePath, qrCodeData);
 
     // Generate the URL to the QR code image
-    const qrCodeImageUrl = `http://localhost:3000/qrcodes/${transactionId}.png`;
+    const qrCodeImageUrl = `https://sami-2y76.onrender.com/qrcodes/${transactionId}.png`;
 
     // Prepare the WhatsApp message
     const message = encodeURIComponent(
@@ -479,7 +479,7 @@ async function generateReceiptsForActors(validActors, transactionData, transacti
       };
 
       // Generate the receipt for the current actor
-      const receiptResponse = await fetch('http://localhost:3000/generate-receipts', {
+      const receiptResponse = await fetch('https://sami-2y76.onrender.com/generate-receipts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -513,7 +513,7 @@ async function generateReceiptsForActors(validActors, transactionData, transacti
   async function generateReceipts(transactionData, transactionId, queueNumber, res) {
     try {
       // Generate main receipt
-      const receiptResponse = await fetch('http://localhost:3000/generate-receipts', {
+      const receiptResponse = await fetch('https://sami-2y76.onrender.com/generate-receipts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -529,7 +529,7 @@ async function generateReceiptsForActors(validActors, transactionData, transacti
   
       // Generate additional QR code receipt for Camira photos if applicable
       if (transactionData.camira_photos > 0) {
-        const qrReceiptResponse = await fetch('http://localhost:3000/generate-receipts', {
+        const qrReceiptResponse = await fetch('https://sami-2y76.onrender.com/generate-receipts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -593,76 +593,141 @@ app.post('/archive-event', (req, res) => {
                 <span class="text-sm font-light text-white">${transactionData.transaction_id}</span>
           </div>
           <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-center">
-            <img src="images/samilogo.png" alt="Logo" class="w-24 h-24 mx-auto mb-4">
-            <h1 class="text-2xl font-bold text-white">إيصال تصوير مع الفنانين</h1>
-            <p class="text-sm text-blue-100 mt-2">Thank you for your purchase!</p>
+            <img src="https://sami-2y76.onrender.com/samilogo.png" alt="Logo" class="w-28 h-28 mx-auto mb-4">
+            <h1 class="text-xl font-bold text-white">إيصال تصوير مع الفنانين</h1>
           </div>
-  
+          <!-- Add a separator line here -->
+    <!-- Add a separator line here -->
+    <!-- Add a separator line here -->
+          <div class="w-1/2 mx-auto border-t-2 border-gray-400 my-4"></div>
           <!-- Receipt Body -->
-          <div class="p-6">
-            <!-- Transaction Details -->
-            <div class="space-y-4">
-              
+          <!-- Receipt Body -->
+        <div class="p-6">
+          <!-- Transaction Details -->
+          <div class="space-y-4">
+            <div class="flex flex-row-reverse justify-between">
+              <span class="text-gray-600 text-right">المسرحــية</span>
+              <span class="font-semibold text-gray-800 text-right">${transactionData.event_name}</span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+            </div>
+            <div class="flex flex-row-reverse justify-between">
+              <span class="text-gray-600">اسم الفنـان</span>
+              <span class="font-semibold text-gray-800">${transactionData.actors[0].actor_name}</span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+            </div>
+            <div class="flex flex-row-reverse justify-between">
+              <span class="text-gray-600">البــــــــوم</span>
+              <span class="font-semibold text-gray-800">${transactionData.event_selected_date}</span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+            </div>
+            <div class="flex flex-row-reverse justify-between">
+              <span class="text-gray-600">العـــرض</span>
+              <span class="font-semibold text-gray-800">${transactionData.event_selected_showtime}</span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+            </div>
+            ${queueEnabled ? `
+            <div class="flex flex-row-reverse justify-between">
+              <span class="text-gray-600">رقـم الدور</span>
+              <span class="font-semibold text-gray-800">${transactionData.queue_number}</span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+            </div>
+            ` : ''}
+            <!--//<div class="flex flex-row-reverse justify-between">
+              //<span class="text-gray-600">طريقة الدفع</span>
+              //<span class="font-semibold text-gray-800">${transactionData.payment_method}</span>
+              //<span class="text-gray-600">            </span>
+              //<span class="text-gray-600">            </span>
+              //<span class="text-gray-600">            </span>
+              //<span class="text-gray-600">            </span>
+              //<span class="text-gray-600">            </span>
+              //<span class="text-gray-600">            </span>
+              //<span class="text-gray-600">            </span>
+              //<span class="text-gray-600">            </span>
+              //<span class="text-gray-600">            </span>
+              //<span class="text-gray-600">            </span>
+            //</div> -->
+            ${transactionData.knet_amount > 0 ? `
               <div class="flex flex-row-reverse justify-between">
-                <span class="text-gray-600">Event Name:</span>
-                <span class="font-semibold text-gray-800">${transactionData.event_name}</span>
+                <span class="text-gray-600">مبلغ الكنت:</span>
+                <span class="font-semibold text-gray-800">${transactionData.knet_amount.toFixed(2)} KWD</span>
+                <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
+              <span class="text-gray-600">            </span>
               </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Actor Name:</span>
-                <span class="font-semibold text-gray-800">${transactionData.actors[0].actor_name}</span>
-              </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Event Date:</span>
-                  <span class="font-semibold text-gray-800">${transactionData.event_selected_date}</span>
-                </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Showtime:</span>
-                <span class="font-semibold text-gray-800">${transactionData.event_selected_showtime}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Camira Photos:</span>
-                <span class="font-semibold text-gray-800">${transactionData.actors[0].camira_photos}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Mobile Photos:</span>
-                <span class="font-semibold text-gray-800">${transactionData.actors[0].mobile_photos}</span>
-              </div>
-              ${queueEnabled ? `
-              <div class="flex justify-between">
-                <span class="text-gray-600">Queue Number:</span>
-                <span class="font-semibold text-gray-800">${transactionData.queue_number}</span>
-              </div>
-              ` : ''}
-              <div class="flex justify-between">
-                <span class="text-gray-600">Payment Method:</span>
-                <span class="font-semibold text-gray-800">${transactionData.payment_method}</span>
-              </div>
-              ${transactionData.knet_amount > 0 ? `
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Knet Amount:</span>
-                  <span class="font-semibold text-gray-800">${transactionData.knet_amount.toFixed(2)} KWD</span>
-                </div>
-              ` : ''}
-              <!-- <div class="flex justify-between">
-                <span class="text-gray-600">Total Amount:</span>
-                <span class="font-semibold text-blue-600">${transactionData.total_amount.toFixed(2)} KWD</span>
-              </div> -->
-            </div>
-  
-            <!-- QR Code Section -->
-            <div class="mt-6 text-center">
-              <div id="qrcode" class="mx-auto"></div>
-              <p class="text-sm text-gray-500 mt-2">Scan this QR code for transaction details.</p>
-            </div>
+            ` : ''}
           </div>
-  
-          <!-- Receipt Footer -->
-          <div class="bg-gray-50 p-4 text-center">
-            <p class="text-sm text-gray-500">For any inquiries, please contact support@example.com</p>
-            <p class="text-xs text-gray-400 mt-2">Transaction Date: ${new Date().toLocaleDateString()}</p>
+          <!-- Add a separator line here -->
+          <div class="w-1/2 mx-auto border-t-2 border-gray-400 my-4"></div>      
+          <!-- QR Code Section -->
+          <div class="mt-6 text-center">
+            <div id="qrcode" class="mx-auto w-20 h-20 flex justify-center"></div>
+            
           </div>
+
+        <div class="bg-gray-50 p-4 text-center text-xs text-gray-500">
+         
+          <p class="mt-2">تاريخ المعاملة: ${new Date().toLocaleDateString()}</p>
+
+          <div class="mt-3 space-y-2">
+            <p><i class="fas fa-phone-alt"></i> +965 55447822 &nbsp; | &nbsp; <i class="fab fa-instagram"></i> sami_photolishs</p>
+            <p><i class="fab fa-whatsapp"></i>  +965 55447922 &nbsp; | &nbsp; <i class="fab fa-youtube"></i> sami photolishes</p>
+          </div>
+
+          <p class="text-[10px] text-gray-400 mt-4">طباعة بواسطة &nbsp; <span class="font-semibold">ادمن</span></p>
         </div>
-  
+
+        <!-- Add FontAwesome for Icons -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
         <!-- QR Code Script -->
         <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
         <script>
@@ -1375,4 +1440,3 @@ app.get('/generate-event-full-report', async (req, res) => {
       res.send({ success: true, pdfPath: `/receipts/${path.basename(pdfPath)}` });
     });
   });
-  
